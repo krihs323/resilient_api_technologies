@@ -10,16 +10,18 @@ import com.example.resilient_api.infrastructure.adapters.persistenceadapter.repo
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.r2dbc.core.DatabaseClient;
 
 @Configuration
 @RequiredArgsConstructor
 public class UseCasesConfig {
         private final TechnologyRepository technologyRepository;
         private final TechnologyEntityMapper technologyEntityMapper;
+        private final DatabaseClient databaseClient;
 
         @Bean
         public TechnologyPersistencePort technologiesPersistencePort() {
-                return new TechnologyPersistenceAdapter(technologyRepository, technologyEntityMapper);
+                return new TechnologyPersistenceAdapter(technologyRepository, technologyEntityMapper, databaseClient);
         }
 
         @Bean

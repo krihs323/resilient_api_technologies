@@ -11,4 +11,9 @@ public interface TechnologyMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
     Technology technologyDTOToTechnology(TechnologyDTO technologyDTO);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "description", target = "description")
+    TechnologyDTO toDTO(Technology technology);
 }

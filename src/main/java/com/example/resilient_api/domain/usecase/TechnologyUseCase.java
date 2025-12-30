@@ -8,6 +8,7 @@ import com.example.resilient_api.domain.model.EmailValidationResult;
 import com.example.resilient_api.domain.spi.EmailValidatorGateway;
 import com.example.resilient_api.domain.spi.TechnologyPersistencePort;
 import com.example.resilient_api.domain.api.TechnologyServicePort;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class TechnologyUseCase implements TechnologyServicePort {
@@ -31,6 +32,11 @@ public class TechnologyUseCase implements TechnologyServicePort {
 //                        ? technologyPersistencePort.save(technology)
 //                        : Mono.error(new BusinessException(TechnicalMessage.INVALID_EMAIL)))
                 ;
+    }
+
+    @Override
+    public Flux<Technology> listTechnologyByCapacity(Long idBootcamp, String messageId) {
+        return technologyPersistencePort.getTecnologiesByCapacity(idBootcamp, messageId);
     }
 
 //    private Mono<EmailValidationResult> validateDescription(String name, String messageId) {

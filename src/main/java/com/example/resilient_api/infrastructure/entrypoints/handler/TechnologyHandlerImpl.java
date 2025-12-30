@@ -10,12 +10,17 @@ import com.example.resilient_api.infrastructure.entrypoints.mapper.TechnologyMap
 import com.example.resilient_api.infrastructure.entrypoints.util.APIResponse;
 import com.example.resilient_api.infrastructure.entrypoints.util.ErrorDTO;
 import com.example.resilient_api.infrastructure.validation.ObjectValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -81,6 +86,18 @@ public class TechnologyHandlerImpl {
                                     .message(TechnicalMessage.INTERNAL_ERROR.getMessage())
                                     .build()));
                 });
+    }
+
+    @Operation(parameters = {
+            @Parameter(name = "idCapacity", in = ParameterIn.QUERY, example = "1", description = "id de la capacidad")
+    })
+    public Mono<ServerResponse> listTecnologyByCapacity(ServerRequest request) {
+        String messageId = getMessageId(request);
+        String idCapacityStr = request.queryParam("idCapacity").orElse("0");
+        Long idBootcamp = Long.parseLong(idCapacityStr);
+        Flux<TechnologyDTO> resultMono = technologyServicePort.listTechnologyByCapacity(idBootcamp, messageId).map(technologyMapper::toDTO);
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(resultMono, TechnologyDTO.class);
+
     }
 
     private Mono<ServerResponse> buildErrorResponse(HttpStatus httpStatus, String identifier, TechnicalMessage error,
