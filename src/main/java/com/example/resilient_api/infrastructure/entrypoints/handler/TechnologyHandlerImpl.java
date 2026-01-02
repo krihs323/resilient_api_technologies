@@ -118,7 +118,7 @@ public class TechnologyHandlerImpl {
     )
     public Mono<ServerResponse> deleteCapacityByBootcamp(ServerRequest request) {
         String messageId = getMessageId(request);
-        int idBootcamp = Integer.valueOf(request.pathVariable("idBootcamp"));
+        int idBootcamp = Integer.parseInt(request.pathVariable("idBootcamp"));
         return request.bodyToFlux(CapacityTechnology.class)
                 .collectList()
                 .flatMap(capacityList -> {

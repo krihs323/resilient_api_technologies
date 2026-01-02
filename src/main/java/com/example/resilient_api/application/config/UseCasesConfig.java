@@ -1,7 +1,6 @@
 package com.example.resilient_api.application.config;
 
 import com.example.resilient_api.domain.spi.CapacityTechnologyPersistencePort;
-import com.example.resilient_api.domain.spi.EmailValidatorGateway;
 import com.example.resilient_api.domain.spi.TechnologyPersistencePort;
 import com.example.resilient_api.domain.usecase.TechnologyUseCase;
 import com.example.resilient_api.domain.api.TechnologyServicePort;
@@ -32,7 +31,7 @@ public class UseCasesConfig {
         }
 
         @Bean
-        public TechnologyServicePort technologiesServicePort(TechnologyPersistencePort technologiesPersistencePort, EmailValidatorGateway emailValidatorGateway, CapacityTechnologyPersistencePort capacityTechnologyPersistencePort){
-                return new TechnologyUseCase(technologiesPersistencePort, emailValidatorGateway, capacityTechnologyPersistencePort);
+        public TechnologyServicePort technologiesServicePort(TechnologyPersistencePort technologiesPersistencePort, CapacityTechnologyPersistencePort capacityTechnologyPersistencePort){
+                return new TechnologyUseCase(technologiesPersistencePort, capacityTechnologyPersistencePort);
         }
 }

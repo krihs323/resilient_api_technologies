@@ -43,7 +43,7 @@ public class TechnologyPersistenceAdapter implements TechnologyPersistencePort {
             capacities_x_tecnologies.id_tecnology  = technologies.id
             where capacities_x_tecnologies.id_capacity = %s
             ORDER BY NAME ASC
-            """.formatted(idCapacity);;
+            """.formatted(idCapacity);
         return databaseClient.sql(sql)
                 .map((row, meta) -> new Technology(
                         row.get("id_tecnology", Long.class),
@@ -61,14 +61,14 @@ public class TechnologyPersistenceAdapter implements TechnologyPersistencePort {
         }
 
         String idsFormatted = capacityTechnologies.stream()
-                .map(cap -> String.valueOf(cap.id_capacity())) // Asumiendo que el método es getIdCapacity()
+                .map(cap -> String.valueOf(cap.id_capacity()))
                 .collect(Collectors.joining(","));
 
         String sql = """
                 select id from tecnologias.capacities_x_tecnologies where id_capacity not in(%s)
                 	and id_tecnology in (select id_tecnology from tecnologias.capacities_x_tecnologies where id_capacity in (%s)
                 group by id_tecnology) limit 1
-            """.formatted(idsFormatted, idsFormatted);;
+            """.formatted(idsFormatted, idsFormatted);
         return databaseClient.sql(sql)
                 .map((row, meta) -> true)
                 .first()
