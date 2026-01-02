@@ -16,7 +16,7 @@ management:
       path-mapping:
         health: actuator/health
         metrics: actuator/metrics
-        loggers: resilient-api/actuator/loggers
+        loggers: resilient-api-technology/actuator/loggers
   endpoint:
     health:
       probes:

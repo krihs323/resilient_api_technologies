@@ -13,7 +13,7 @@ public enum TechnicalMessage {
     INVALID_PARAMETERS(INVALID_REQUEST.getCode(), "Bad Parameters, please verify data", ""),
     INVALID_EMAIL("403", "Invalid email, please verify", "email"),
     INVALID_MESSAGE_ID("404", "Invalid Message ID, please verify", "messageId"),
-    UNSUPPORTED_OPERATION("501", "Method not supported, please try again", ""),
+    TECHNOLOGY_WITH_OTHER_CAPACITIES("400", "No se pueden borrar las tecnologias porque estan asociados a otras capacidades", ""),
     TECHNOLOGY_CREATED("201", "Technology created successfully", ""),
     ADAPTER_RESPONSE_NOT_FOUND("404-0", "invalid email, please verify", ""),
     TECHNOLOGY_ALREADY_EXISTS("400","La tecnologia ya está registrado." ,"" ),

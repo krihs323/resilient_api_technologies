@@ -18,9 +18,6 @@ public class RouterRest {
             @RouterOperation(path = "/createPerson", beanClass = TechnologyDTO.class, beanMethod = "save"),
             @RouterOperation(path = "/deletePerson/{id}", beanClass = TechnologyDTO.class, beanMethod = "delete") })
     @Bean
-//    public RouterFunction<ServerResponse> routerFunction(TechnologyHandlerImpl technologyHandler) {
-//        return route().POST("/technology"), technologyHandler::createTechnology);
-//    }
     public RouterFunction<ServerResponse> routerFunction(TechnologyHandlerImpl technologyHandler) {
         return SpringdocRouteBuilder.route()
                 .POST("/technology",
@@ -29,6 +26,10 @@ public class RouterRest {
                 .GET("/capacity/capacities-by-Bootcamps/",
                         technologyHandler::listTecnologyByCapacity,
                         ops -> ops.beanClass(TechnologyHandlerImpl.class).beanMethod("listTecnologyByCapacity")
+                )
+                .DELETE("/technology/{idBootcamp}",
+                        technologyHandler::deleteCapacityByBootcamp,
+                        ops -> ops.beanClass(TechnologyHandlerImpl.class).beanMethod("deleteCapacityByBootcamp")
                 )
                 .build();
     }
