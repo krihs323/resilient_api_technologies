@@ -122,6 +122,7 @@ public class TechnologyHandlerImpl {
         return request.bodyToFlux(CapacityTechnology.class)
                 .collectList()
                 .flatMap(capacityList -> {
+                    log.info("Cuerpo recibido para messageId {}: {}", messageId, capacityList);
                     // Validación: Si la lista está vacía, respondemos de inmediato
                     if (capacityList.isEmpty()) {
                         return ServerResponse.badRequest()

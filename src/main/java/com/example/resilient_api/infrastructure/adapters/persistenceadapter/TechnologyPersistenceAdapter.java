@@ -61,7 +61,7 @@ public class TechnologyPersistenceAdapter implements TechnologyPersistencePort {
         }
 
         String idsFormatted = capacityTechnologies.stream()
-                .map(cap -> String.valueOf(cap.id_capacity()))
+                .map(cap -> String.valueOf(cap.idCapacity()))
                 .collect(Collectors.joining(","));
 
         String sql = """
@@ -86,7 +86,7 @@ public class TechnologyPersistenceAdapter implements TechnologyPersistencePort {
 
         // 2. Formatear los IDs: "1,2,3"
         String idsFormatted = capacityTechnologies.stream()
-                .map(capacity -> String.valueOf(capacity.id_capacity()))
+                .map(capacity -> String.valueOf(capacity.idCapacity()))
                 .collect(Collectors.joining(","));
 
         // 3. Preparar el SQL
@@ -98,8 +98,6 @@ public class TechnologyPersistenceAdapter implements TechnologyPersistencePort {
                 .formatted(idsFormatted);
 
         log.info("Executing delete for capacity IDs: [{}] for messageId: {}", idsFormatted, messageId);
-
-        log.info(sql);
 
         // 4. Ejecutar y retornar Mono<Void>
         return databaseClient.sql(sql)
