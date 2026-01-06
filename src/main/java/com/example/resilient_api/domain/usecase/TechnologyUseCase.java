@@ -29,12 +29,7 @@ public class TechnologyUseCase implements TechnologyServicePort {
         return technologyPersistencePort.existByName(technology.name())
                 .filter(exists -> !exists)
                 .switchIfEmpty(Mono.error(new BusinessException(TechnicalMessage.TECHNOLOGY_ALREADY_EXISTS)))
-                //.flatMap(exists -> validateDescription(technology.name(), messageId))
-                .flatMap(x-> technologyPersistencePort.save(technology))
-//                .flatMap(validationResult -> validationResult.deliverability().equals(Constants.DELIVERABLE)
-//                        ? technologyPersistencePort.save(technology)
-//                        : Mono.error(new BusinessException(TechnicalMessage.INVALID_EMAIL)))
-                ;
+                .flatMap(x-> technologyPersistencePort.save(technology));
     }
 
     @Override
@@ -54,5 +49,15 @@ public class TechnologyUseCase implements TechnologyServicePort {
                     return technologyPersistencePort.deleteTechnologyByCapacity(capacityTechnologies, messageId)
                     .then(capacityTechnologyPersistencePort.deleteAllCapacityTechnologies(capacityTechnologies, messageId));
                 });
+    }
+
+    @Override
+    public Mono<Void> registerCapcities(List<CapacityTechnology> capacityTechnologyList, String messageId) {
+        return capacityTechnologyPersistencePort.saveAll(capacityTechnologyList, messageId);
+    }
+
+    @Override
+    public Flux<CapacityTechnology> listTechnologiesCapacity(int page, int size, String sortBy, String sortDir, String messageId) {
+        return capacityTechnologyPersistencePort.getlAll(page, size, sortBy, sortDir, messageId);
     }
 }

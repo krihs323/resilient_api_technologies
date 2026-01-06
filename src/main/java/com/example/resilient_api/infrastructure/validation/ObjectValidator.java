@@ -1,7 +1,5 @@
 package com.example.resilient_api.infrastructure.validation;
 
-import com.example.resilient_api.domain.enums.TechnicalMessage;
-import com.example.resilient_api.domain.exceptions.BusinessException;
 import com.example.resilient_api.domain.exceptions.CustomException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;

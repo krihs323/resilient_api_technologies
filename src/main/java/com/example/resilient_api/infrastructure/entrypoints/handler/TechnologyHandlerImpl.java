@@ -6,7 +6,11 @@ import com.example.resilient_api.domain.exceptions.BusinessException;
 import com.example.resilient_api.domain.exceptions.CustomException;
 import com.example.resilient_api.domain.exceptions.TechnicalException;
 import com.example.resilient_api.domain.model.CapacityTechnology;
+import com.example.resilient_api.infrastructure.adapters.persistenceadapter.entity.CapacityTechnologyEntity;
+import com.example.resilient_api.infrastructure.entrypoints.dto.CacacitiesDTO;
+import com.example.resilient_api.infrastructure.entrypoints.dto.CapacityTechnologyDTO;
 import com.example.resilient_api.infrastructure.entrypoints.dto.TechnologyDTO;
+import com.example.resilient_api.infrastructure.entrypoints.mapper.CapacityTechnologyMapper;
 import com.example.resilient_api.infrastructure.entrypoints.mapper.TechnologyMapper;
 import com.example.resilient_api.infrastructure.entrypoints.util.APIResponse;
 import com.example.resilient_api.infrastructure.entrypoints.util.ErrorDTO;
@@ -16,6 +20,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -42,6 +48,7 @@ public class TechnologyHandlerImpl {
     private final TechnologyServicePort technologyServicePort;
     private final TechnologyMapper technologyMapper;
     private final ObjectValidator objectValidator;
+    private final CapacityTechnologyMapper capacityTechnologyMapper;
 
     public Mono<ServerResponse> createTechnology(ServerRequest request) {
         String messageId = getMessageId(request);
@@ -49,6 +56,74 @@ public class TechnologyHandlerImpl {
                 .flatMap(technology -> technologyServicePort.registerTechnology(technologyMapper.technologyDTOToTechnology(technology), messageId)
                         .doOnSuccess(savedTechnology -> log.info("Technology created successfully with messageId: {}", messageId))
                 )
+                .flatMap(savedTechnology -> ServerResponse
+                        .status(HttpStatus.CREATED)
+                        .bodyValue(TechnicalMessage.TECHNOLOGY_CREATED.getMessage()))
+                .contextWrite(Context.of(X_MESSAGE_ID, messageId))
+                .doOnError(ex -> log.error(TECHNOLOGY_ERROR, ex))
+                .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
+                        HttpStatus.BAD_REQUEST,
+                        messageId,
+                        TechnicalMessage.INVALID_PARAMETERS,
+                        List.of(ErrorDTO.builder()
+                                .code(ex.getTechnicalMessage().getCode())
+                                .message(ex.getTechnicalMessage().getMessage())
+                                .param(ex.getTechnicalMessage().getParam())
+                                .build())))
+                .onErrorResume(TechnicalException.class, ex -> buildErrorResponse(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        messageId,
+                        TechnicalMessage.INTERNAL_ERROR,
+                        List.of(ErrorDTO.builder()
+                                .code(ex.getTechnicalMessage().getCode())
+                                .message(ex.getTechnicalMessage().getMessage())
+                                .param(ex.getTechnicalMessage().getParam())
+                                .build())))
+                .onErrorResume(CustomException.class, ex -> buildErrorResponse(
+                        HttpStatus.BAD_REQUEST,
+                        messageId,
+                        TechnicalMessage.INVALID_REQUEST,
+                        List.of(ErrorDTO.builder()
+                                .code(TechnicalMessage.INVALID_REQUEST.getCode())
+                                .message(ex.getMessage())
+                                .build())))
+                .onErrorResume(ex -> {
+                    log.error("Unexpected error occurred creating technoiloy for messageId: {}", messageId, ex);
+                    return buildErrorResponse(
+                            HttpStatus.INTERNAL_SERVER_ERROR,
+                            messageId,
+                            TechnicalMessage.INTERNAL_ERROR,
+                            List.of(ErrorDTO.builder()
+                                    .code(TechnicalMessage.INTERNAL_ERROR.getCode())
+                                    .message(TechnicalMessage.INTERNAL_ERROR.getMessage())
+                                    .build()));
+                });
+    }
+
+    @Operation(
+            summary = "Registrar tecnologias para la capacidad registrada",
+            description = "Asocia las tecnologias para la capacidad registrada",
+            requestBody = @RequestBody(
+                    description = "Información de la capacidad a registrar",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CacacitiesDTO.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Capacidad creada exitosamente"),
+                    @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+            })
+    public Mono<ServerResponse> createCapacities(ServerRequest request) {
+        String messageId = getMessageId(request);
+        return request.bodyToFlux(CapacityTechnologyDTO.class) // Recibe la lista como Flux
+                .collectList()
+                .flatMap(capacities -> {
+                    List<CapacityTechnology> capacityTechnologyList = capacities.stream().map(capacityTechnologyMapper::capacityTechnologyDTOToCapacityTechnology)
+                            .toList();
+                    return technologyServicePort.registerCapcities(capacityTechnologyList, messageId);
+                })
                 .flatMap(savedTechnology -> ServerResponse
                         .status(HttpStatus.CREATED)
                         .bodyValue(TechnicalMessage.TECHNOLOGY_CREATED.getMessage()))
@@ -102,7 +177,6 @@ public class TechnologyHandlerImpl {
         Long idBootcamp = Long.parseLong(idCapacityStr);
         Flux<TechnologyDTO> resultMono = technologyServicePort.listTechnologyByCapacity(idBootcamp, messageId).map(technologyMapper::toDTO);
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(resultMono, TechnologyDTO.class);
-
     }
 
     @Operation(
@@ -153,6 +227,24 @@ public class TechnologyHandlerImpl {
                                     .message(TechnicalMessage.INTERNAL_ERROR.getMessage())
                                     .build()));
                 });
+    }
+
+    @Operation(parameters = {
+            @Parameter(name = "page", in = ParameterIn.QUERY, example = "0", description = "Número de página"),
+            @Parameter(name = "size", in = ParameterIn.QUERY, example = "10", description = "Tamaño de la pàgina"),
+            @Parameter(name = "sortBy", in = ParameterIn.QUERY, example = "name", description = "Ordenar por"),
+            @Parameter(name = "sortDir", in = ParameterIn.QUERY, example = "ASC", description = "Dirección ASC/DESC")
+    })
+    public Mono<ServerResponse> listTechnologyCapacities(ServerRequest request) {
+        String messageId = getMessageId(request);
+        //Parametros de paginacion
+        String pageStr = request.queryParam("page").orElse("0");
+        int page = Integer.parseInt(pageStr);
+        int size = Integer.parseInt(request.queryParam("size").orElse("10"));
+        String sortBy = request.queryParam("sortBy").orElse("name");
+        String sortDir = request.queryParam("sortDir").orElse("ASC");
+        Flux<CapacityTechnologyDTO> resultMono = technologyServicePort.listTechnologiesCapacity(page,  size,  sortBy,  sortDir, messageId).map(capacityTechnologyMapper::capacityTechnologyToCapacityTechnologyDTO);
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(resultMono, CapacityTechnologyDTO.class);
     }
 
     private Mono<ServerResponse> buildErrorResponse(HttpStatus httpStatus, String identifier, TechnicalMessage error,

@@ -6,7 +6,9 @@ import com.example.resilient_api.domain.usecase.TechnologyUseCase;
 import com.example.resilient_api.domain.api.TechnologyServicePort;
 import com.example.resilient_api.infrastructure.adapters.persistenceadapter.CapacityTechnologyPersistenceAdapter;
 import com.example.resilient_api.infrastructure.adapters.persistenceadapter.TechnologyPersistenceAdapter;
+import com.example.resilient_api.infrastructure.adapters.persistenceadapter.mapper.CapacityTechnologyEntityMapper;
 import com.example.resilient_api.infrastructure.adapters.persistenceadapter.mapper.TechnologyEntityMapper;
+import com.example.resilient_api.infrastructure.adapters.persistenceadapter.repository.CapacityTechnologyRepository;
 import com.example.resilient_api.infrastructure.adapters.persistenceadapter.repository.TechnologyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,15 +21,18 @@ public class UseCasesConfig {
         private final TechnologyRepository technologyRepository;
         private final TechnologyEntityMapper technologyEntityMapper;
         private final DatabaseClient databaseClient;
+        private final CapacityTechnologyRepository capacityTechnologyRepository;
+        private final CapacityTechnologyEntityMapper capacityTechnologyEntityMapper;
 
-        @Bean
+
+    @Bean
         public TechnologyPersistencePort technologiesPersistencePort() {
                 return new TechnologyPersistenceAdapter(technologyRepository, technologyEntityMapper, databaseClient);
         }
 
         @Bean
         public CapacityTechnologyPersistencePort capacityTechnologyPersistencePort() {
-            return new CapacityTechnologyPersistenceAdapter(databaseClient);
+            return new CapacityTechnologyPersistenceAdapter(databaseClient, capacityTechnologyRepository, capacityTechnologyEntityMapper);
         }
 
         @Bean

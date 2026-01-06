@@ -2,9 +2,13 @@ package com.example.resilient_api.infrastructure.adapters.persistenceadapter;
 
 import com.example.resilient_api.domain.model.CapacityTechnology;
 import com.example.resilient_api.domain.spi.CapacityTechnologyPersistencePort;
+import com.example.resilient_api.infrastructure.adapters.persistenceadapter.entity.CapacityTechnologyEntity;
+import com.example.resilient_api.infrastructure.adapters.persistenceadapter.mapper.CapacityTechnologyEntityMapper;
+import com.example.resilient_api.infrastructure.adapters.persistenceadapter.repository.CapacityTechnologyRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.r2dbc.core.DatabaseClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -14,6 +18,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CapacityTechnologyPersistenceAdapter implements CapacityTechnologyPersistencePort {
     private final DatabaseClient databaseClient;
+    private final CapacityTechnologyRepository capacityTechnologyRepository;
+    private final CapacityTechnologyEntityMapper capacityTechnologyEntityMapper;
+
 
 
     @Override
@@ -41,5 +48,15 @@ public class CapacityTechnologyPersistenceAdapter implements CapacityTechnologyP
                 .rowsUpdated() // Retorna la cantidad de filas afectadas (Mono<Long>)
                 .doOnNext(rows -> log.info("Successfully deleted {} rows for messageId: {}", rows, messageId))
                 .then(); // Transformamos el Mono<Long> en Mono<Void>
+    }
+
+    @Override
+    public Mono<Void> saveAll(List<CapacityTechnology> capacityTechnologyList, String messageId) {
+        return capacityTechnologyRepository.saveAll(capacityTechnologyList.stream().map(capacityTechnologyEntityMapper::toEntity).toList()).then();
+    }
+
+    @Override
+    public Flux<CapacityTechnology> getlAll(int page, int size, String sortBy, String sortDir, String messageId) {
+        return capacityTechnologyRepository.findAll().map(capacityTechnologyEntityMapper::toModel);
     }
 }

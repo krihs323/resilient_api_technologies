@@ -4,8 +4,11 @@ import com.example.resilient_api.domain.model.Technology;
 import com.example.resilient_api.infrastructure.entrypoints.dto.TechnologyDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface TechnologyMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "name", target = "name")

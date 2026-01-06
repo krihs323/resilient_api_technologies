@@ -23,6 +23,9 @@ public class RouterRest {
                 .POST("/technology",
                         technologyHandler::createTechnology,
                         ops -> ops.beanClass(TechnologyHandlerImpl.class).beanMethod("createTechnology"))
+                .POST("/technology/savecapacities",
+                        technologyHandler::createCapacities,
+                        ops -> ops.beanClass(TechnologyHandlerImpl.class).beanMethod("createCapacities"))
                 .GET("/capacity/capacities-by-Bootcamps/",
                         technologyHandler::listTecnologyByCapacity,
                         ops -> ops.beanClass(TechnologyHandlerImpl.class).beanMethod("listTecnologyByCapacity")
@@ -30,6 +33,10 @@ public class RouterRest {
                 .DELETE("/technology/{idBootcamp}",
                         technologyHandler::deleteCapacityByBootcamp,
                         ops -> ops.beanClass(TechnologyHandlerImpl.class).beanMethod("deleteCapacityByBootcamp")
+                )
+                .GET("/technology/capacity",
+                        technologyHandler::listTechnologyCapacities,
+                        ops -> ops.beanClass(TechnologyHandlerImpl.class).beanMethod("listTechnologyCapacities")
                 )
                 .build();
     }
