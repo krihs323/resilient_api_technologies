@@ -14,8 +14,7 @@ CREATE TABLE IF NOT EXISTS capacities_x_tecnologies (
 	id_capacity INT NOT NULL,
 	id_tecnology INT NOT NULL,
 	CONSTRAINT capacities_x_tecnologies_pk PRIMARY KEY (id),
-	CONSTRAINT capacities_x_tecnologies_unique UNIQUE KEY (id_capacity,id_tecnology),
-	CONSTRAINT `capacities_technologies_FK` FOREIGN KEY (`id_tecnology`) REFERENCES `technologies` (`id`)
+	CONSTRAINT capacities_x_tecnologies_unique UNIQUE KEY (id_capacity,id_tecnology)
 )
 ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
