@@ -52,7 +52,7 @@ public class TechnologyHandlerImpl {
 
     public Mono<ServerResponse> createTechnology(ServerRequest request) {
         String messageId = getMessageId(request);
-        return request.bodyToMono(TechnologyDTO.class).doOnNext(objectValidator::validate)
+        return request.bodyToMono(TechnologyDTO.class).flatMap(objectValidator::validate)
                 .flatMap(technology -> technologyServicePort.registerTechnology(technologyMapper.technologyDTOToTechnology(technology), messageId)
                         .doOnSuccess(savedTechnology -> log.info("Technology created successfully with messageId: {}", messageId))
                 )
