@@ -11,6 +11,6 @@ public interface TechnologyPersistencePort {
     Mono<Technology> save(Technology technology);
     Mono<Boolean> existByName(String name);
     Flux<Technology> getTecnologiesByCapacity(Long idBootcamp, String messageId);
-    Mono<Boolean> getTechnologiesInOtherCapacities(List<CapacityTechnology> capacityTechnologies, String messageId);
+    Mono<Boolean>   getTechnologiesInOtherCapacities(List<CapacityTechnology> capacityTechnologies, String messageId);
     Mono<Void> deleteTechnologyByCapacity(List<CapacityTechnology> capacityTechnologies, String messageId);
 }

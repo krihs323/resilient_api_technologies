@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.6'
 	id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco'
 }
 
 group = 'com.example'
@@ -20,6 +21,43 @@ repositories {
 ext {
 	set('springCloudVersion', "2023.0.4")
 }
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test // El reporte se genera solo después de correr los tests
+
+    reports {
+        xml.required = true
+        html.required = true
+        // Ubicación personalizada (opcional)
+        html.outputLocation = layout.buildDirectory.dir('reports/jacoco')
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    "**/application/**",
+                    "**/domain/api/**",
+                    "**/domain/spi/**",
+                    "**/domain/enums/**",
+                    "**/domain/model/**",
+                    "**/domain/constants/**",
+                    "**/infrastructure/configuration/**",
+                    "**/infrastructure/adapters/**",
+                    "**/infrastructure/documentation/**",
+                    "**/infrastructure/entrypoints/mapper/**",
+                    "**/infrastructure/entrypoints/handler/**",
+                    "**/infrastructure/entrypoints/util/**",
+                    "**/infrastructure/entrypoints/dto/**",
+                    "**/infrastructure/validation/**",
+                    "**/infrastructure/util/mapper/**",
+                    "**/exceptions/**",
+            ])
+        }))
+    }
+}
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -27,7 +65,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-	//implementation 'io.github.resilience4j:resilience4j-spring-boot2:2.2.0'
     implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.8.0'
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
 	implementation 'io.github.resilience4j:resilience4j-reactor:2.2.0'
@@ -43,7 +80,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
 }
 
 dependencyManagement {
